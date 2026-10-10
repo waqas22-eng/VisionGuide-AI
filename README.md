@@ -1,90 +1,132 @@
-AI Visual Assistant for Visually Impaired People
-VisionGuide AI is an experimental computer-vision prototype intended to provide audio descriptions of selected objects in a camera view. It combines YOLO object detection, OpenCV, spoken announcements, approximate left/center/right image-position labels, heuristic object-priority scores, and optional OCR text reading.
-Safety notice: This is a student/research prototype, not a certified mobility or safety device. It can miss objects, misclassify scenes, and produce incorrect position or priority labels. Bounding-box size is not a reliable measurement of real-world distance or collision risk. Do not use this prototype as the sole navigation aid or replace a cane, guide dog, or established mobility training.
+ VisionGuide AI 
 
-Current Features
-- Camera-based object detection using Ultralytics YOLO.
-- Voice announcements for configured object classes.
-- Approximate left, center, and right position descriptions in the camera image.
-- Experimental, rule-based object-priority scoring and visual labels.
-- Voice cooldowns intended to reduce repeated announcements.
-- Optional OCR text reading through pytesseract and the separate Tesseract OCR application.
-- Optional experimental depth-model hook, disabled by default.
-Only claim features such as tracking or movement analysis as implemented after they have been added to the code and tested successfully.
-Technology Stack
-- Python 3.10 (the current development environment)
+AI Visual Assistant for Visually Impaired People
+
+VisionGuide AI is a computer vision project designed to help visually impaired people understand their surroundings through object detection and voice announcements. It uses a camera, YOLO, OpenCV, and text-to-speech to describe supported objects and their positions in the camera view.
+
+This is an experimental software prototype developed for learning, research, and university project exhibitions.
+
+ Features
+
+- Real-Time Object Detection: Detects supported objects using a pretrained YOLO model.
+- Voice Alerts: Announces detected objects using Windows built-in speech.
+- Directional Descriptions: Describes objects as being on the left, right, or straight ahead in the camera image.
+- Smart Hazard Priority: Assigns experimental priority scores based on object category, image position, apparent size, and confidence.
+- Visual Priority Labels: Displays object labels, priority levels, and scores on the camera view.
+- Text Reading (OCR): Reads visible text aloud using Tesseract OCR when configured.
+- Optional Experimental Depth View: Provides an optional model-based view when a compatible model is available.
+
+ Technologies Used
+
+- Python
 - OpenCV
 - Ultralytics YOLO
-- Windows PowerShell System.Speech for text-to-speech in the current version
-- pytesseract plus the separate Tesseract OCR executable for optional text reading
-Run on Windows (Current Prototype)
-1. Install Python 3.10 and Git.
-2. Open this repository in VS Code.
-3. Create/activate a virtual environment if you do not already have one.
-4. Install the Python dependencies:
-   python -m pip install -r requirements.txt
-5. Make sure the configured YOLO model file (yolo26n.pt) is available in the project folder or change YOLO_MODEL_PATH in visionguide_complete.py to the path of a supported model. Do not commit model weights unless you have checked the file size, licence, and redistribution terms.
-6. For OCR, install Tesseract OCR separately and update TESSERACT_EXE in visionguide_complete.py to match its actual installation path. If OCR is not installed, object detection can still be tested, but text reading will be unavailable.
-7. Run:
-   python visionguide_complete.py
-Controls
-- Q: Quit the application.
-- S: Read text from the current camera frame, when OCR is configured.
-Hardware Implementation Roadmap (Future Work)
-The current version is designed and tested on a Windows laptop. A wearable, Raspberry Pi-based version is a future development goal, not a feature that should be described as already implemented. The hardware and software will need to be adapted and tested before the laptop code can run reliably on a small board.
-Possible Hardware
-Initial edge-computing prototype:
-- Raspberry Pi 5 (an 8 GB version is a reasonable starting point for development, subject to budget and measured performance).
-- A compatible camera, such as Raspberry Pi Camera Module 3 Wide for a broader view, or a supported USB webcam for a simpler first test.
-- A compatible camera cable for the exact Pi and camera connectors.
-- Small speaker, earphones, or an open-ear audio device so that the user can still hear surrounding traffic and people.
-- Suitable USB-C power supply for bench testing; for a portable prototype, a properly rated battery/power solution with safe charging and sufficient current capacity.
-- Ventilated enclosure and cooling appropriate for sustained processing.
-- A secure mount or small belt/chest pack for the computer and battery. Avoid attaching a heavy board or battery directly to ordinary glasses.
-- Optional physical button for reading text or enabling/disabling announcements.
-Possible Edge-AI Acceleration
-Real-time YOLO inference on a small computer may be slower than on a laptop. First benchmark the smaller model and input resolution on the Raspberry Pi CPU. If performance is insufficient, investigate an accelerator supported by the chosen Raspberry Pi model, such as the Raspberry Pi AI HAT+ ecosystem, or a compatible AI camera.
-Important compatibility note: An accelerator does not automatically run every .pt model. For an AI HAT+/Hailo-based setup, the model and inference pipeline may need conversion to a supported format and use of the appropriate runtime. The Raspberry Pi AI Camera uses its own supported inference pipeline, so it also requires adaptation rather than simply changing the camera index. Confirm current compatibility and installation instructions before buying hardware.
-Official documentation:
-- Raspberry Pi 5
-- Raspberry Pi camera documentation
-- Raspberry Pi camera software
-- Raspberry Pi AI Camera
-- Raspberry Pi AI software and accelerators
-Software Changes Required for Raspberry Pi
-The current program uses Windows PowerShell's System.Speech for voice output. That speech implementation will not work unchanged on Raspberry Pi OS. A Linux-compatible speech engine will be needed, for example espeak-ng or another supported text-to-speech service.
-Likely adaptation tasks:
-1. Install a 64-bit Raspberry Pi OS version supported by the selected board and AI hardware.
-2. Verify the camera independently using Raspberry Pi's current camera tools. For a CSI camera, follow the official camera and Picamera2 documentation; for a USB webcam, test the device with OpenCV.
-3. Replace the Windows-only PowerShell speak() function with a Linux-compatible speech implementation.
-4. Install a compatible Python, PyTorch/Ultralytics runtime and model for the selected architecture; confirm package support for the chosen OS before installation.
-5. Install Tesseract OCR and pytesseract on the Pi if OCR is required.
-6. Lower camera resolution and inference frequency as needed to maintain usable latency and temperature.
-7. Benchmark end-to-end latency, inference rate, battery life, heat, false alarms, and missed detections before attempting any wearable trial.
-8. Keep processing local where practical to reduce dependence on internet connectivity.
-Suggested Development Stages
-1. Stage 1 — Laptop demo: Stabilize detection, voice announcements, OCR, and documented test cases.
-2. Stage 2 — Bench prototype: Run the camera, inference, and audio pipeline on Raspberry Pi on a desk, powered from a suitable supply.
-3. Stage 3 — Portable prototype: Add a secure enclosure, battery, accessible controls, and open-ear audio; measure runtime and heat.
-4. Stage 4 — Controlled testing: Test with stationary objects and recorded video in a safe, controlled environment. Use a sighted supervisor during trials. Do not test by walking near roads or stairs.
-5. Stage 5 — Evaluation: Record latency, detection performance, false positives, missed objects, audio clarity, and battery performance. Any claim of benefit or safety requires appropriate validation.
-Evaluation Plan
-Before an exhibition, run repeatable tests and record actual results. For example, create a small test set of videos or controlled scenes and report how many trials correctly detected each selected class under defined lighting, background, and distance conditions. Do not invent accuracy, FPS, latency, or battery-life results. Clearly distinguish measured results from intended future capabilities.
-Limitations
-- Detection depends on visible objects, lighting, camera placement, and the model's supported classes.
-- Left/center/right describes image position, not necessarily the user's physical left/right if the camera is rotated or mirrored.
-- Priority levels are hand-designed demonstration scores, not a trained or validated hazard model.
-- A bounding box does not provide dependable metric distance; actual collision risk requires substantially more sensing and validation.
-- Object tracking and motion labels, if added, can fail when an object is occluded, the camera moves, or tracker identities change.
-- Tesseract OCR may fail on blurry, angled, small, or poorly lit text.
-- Raspberry Pi deployment, wearable power design, and any AI accelerator integration require additional engineering and testing.
+- PyTorch (used by the YOLO framework)
+- pytesseract
+- Tesseract OCR
+- Windows PowerShell Speech Synthesis
+
+ Installation and Setup
+
+
+
+ 2. Create a virtual environment
+
+```bash
+python -m venv venv
+```
+
+Activate it on Windows:
+
+```powershell
+.\venv\Scripts\Activate.ps1
+```
+
+ 3. Install dependencies
+
+```bash
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+4. Configure the YOLO model
+
+Make sure the YOLO model file configured in `visionguide_complete.py` is available. If it is not present locally, follow the model's official download or installation instructions.
+
+ 5. Configure OCR (optional)
+
+Install Tesseract OCR separately on Windows and ensure its executable path matches the path configured in the Python code.
+
+OCR will be unavailable if its required software or Python package is missing.
+
+ 6. Run the application
+
+```bash
+
+
+Allow camera access if Windows requests permission.
+
+ Controls
+
+| Key | Action |
+|---|---|
+| `Q` | Quit the application |
+| `S` | Read visible text aloud |
+
+ Project Structure
+
+
+VisionGuide-AI/
+├── visionguide_complete.py
+├── requirements.txt
+├── README.md
+├── .gitignore
+
+
+ How It Works
+
+1. The camera captures the surroundings.
+2. YOLO detects supported objects and their bounding boxes.
+3. OpenCV displays the detections and position descriptions.
+4. The priority engine calculates experimental scores for eligible objects.
+5. The voice system announces selected objects.
+6. When OCR is configured, the user can press `S` to read visible text.
+
 Future Improvements
-- Track object identities across frames and evaluate image motion.
-- Add a properly evaluated depth or distance-sensing component.
-- Improve alert scheduling and user controls to reduce speech overload.
-- Explore voice-based scene questions after the core pipeline is stable.
-- Move the pipeline to Raspberry Pi and validate camera, inference, speech, thermal behaviour, and power use.
-Author
+
+- Integrate Raspberry Pi hardware for a portable prototype.
+- Connect a compatible camera module or USB camera.
+- Replace Windows speech synthesis with a Linux-compatible voice engine.
+- Optimize the detection model for Raspberry Pi performance.
+- Investigate a compatible AI accelerator for faster inference.
+- Improve object tracking and movement analysis.
+- Explore more reliable depth sensing.
+- Add voice-based questions about the surrounding scene.
+- Develop a wearable enclosure, audio output, and suitable battery system.
+
+Future Hardware Plan
+
+The long-term goal is to investigate a wearable assistive device using a Raspberry Pi, compatible camera, audio output, power supply, and optionally an AI accelerator. Hardware integration and performance testing will be required before this can become a practical wearable prototype.
+
+Limitations and Safety
+
+- Object detection may miss objects or produce incorrect predictions.
+- Directional descriptions refer to positions within the camera image, not guaranteed real-world directions.
+- Priority scores are experimental rules, not a validated hazard prediction model.
+- Bounding-box size does not reliably measure physical distance.
+- Performance depends on lighting, camera quality, hardware, and model configuration.
+- This prototype is not a certified mobility or safety device.
+
+VisionGuide AI must not be used as the sole navigation aid or replace a white cane, guide dog, or established mobility training.
+
+ Author
+
 Waqas Ali Khan
-Project Status
-Educational prototype in development. Hardware deployment and independent navigation capability are not claimed
+
+AI Student | Aspiring AI/ML Engineer
+
+ Project Status
+
+Educational and research prototype. Features should be described as operational only after testing them on the target system.
+
+
