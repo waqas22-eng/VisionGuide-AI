@@ -1,0 +1,11 @@
+time,event,details
+2026-10-10 03:02:42,start,"VisionGuide v5 started"
+2026-10-10 03:02:48,dark,"mean=26.6"
+2026-10-10 03:04:34,dark,"mean=26.3"
+2026-10-10 03:05:10,dark,"mean=28.7"
+2026-10-10 03:07:07,start,"VisionGuide v5 started"
+2026-10-10 03:07:13,dark,"mean=27.2"
+2026-10-10 03:07:26,path_clear,""
+2026-10-10 03:07:43,dark,"mean=27.8"
+2026-10-10 03:07:59,path_clear,""
+2026-10-10 03:08:13,stop,"VisionGuide stopped"
