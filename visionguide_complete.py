@@ -12,49 +12,31 @@ try:
 except ImportError:  # not Windows
     winsound = None
 
-# ============================================================
-# VISIONGUIDE AI v5 - Smart Hazard Priority
-#
-# New in v5:
-#  - Object tracking + "approaching" detection
-#  - Urgent alerts interrupt normal speech
-#  - Cooldown per (object, position), not per class
-#  - Walking-path corridor + "Path clear" message
-#  - Fast beep feedback (Windows)
-#  - OCR runs in its own thread (no freezing)
-#  - Hotkeys: Q quit, S read text, M mute, R repeat, + / - volume
-#  - Low-light warning and CSV logging
-#
-# IMPORTANT:
-# - Scores are demonstration heuristics, not actual collision risk.
-# - Bounding-box size is NOT a reliable distance measurement.
-# - Do not use this prototype as the only navigation aid.
-#   It supplements a cane or guide dog; it does not replace one.
-# ============================================================
+
 
 YOLO_MODEL_PATH = "yolo26n.pt"
 DEPTH_MODEL_PATH = "yolo26n-depth.pt"
 CAMERA_INDEX = 0
 CONFIDENCE_THRESHOLD = 0.35
-ALERT_COOLDOWN = 6.0            # seconds, per (object, position)
+ALERT_COOLDOWN = 6.0            
 MIN_CONSECUTIVE_FRAMES = 2
 MAX_ALERTS_PER_BATCH = 3
 ENABLE_DEPTH_VIEW = False
 
-# Walking corridor (fraction of frame width)
+
 CORRIDOR_LEFT = 0.30
 CORRIDOR_RIGHT = 0.70
 
-# Approach detection
-APPROACH_GROWTH = 1.35          # box area must grow by this factor...
-APPROACH_WINDOW = 1.0           # ...within this many seconds
-APPROACH_MIN_RATIO = 0.02       # ignore tiny, noisy boxes
 
-# Path clear / beeps / darkness
+APPROACH_GROWTH = 1.35          
+APPROACH_WINDOW = 1.0           
+APPROACH_MIN_RATIO = 0.02       
+
+
 PATH_CLEAR_DELAY = 2.0
 PATH_CLEAR_COOLDOWN = 15.0
 BEEP_COOLDOWN = 1.0
-DARK_THRESHOLD = 40             # mean gray level (0-255)
+DARK_THRESHOLD = 40             
 DARK_COOLDOWN = 30.0
 
 LOG_FILE = "visionguide_log.csv"
@@ -63,8 +45,7 @@ TESSERACT_EXE = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 pytesseract = None
 ocr_available = False
 
-# Object name: (spoken label, minimum box area ratio, base priority)
-HAZARDS = {
+HAZARDS = 
     "car": ("Car", 0.02, 10),
     "truck": ("Truck", 0.02, 10),
     "bus": ("Bus", 0.02, 10),
@@ -88,9 +69,7 @@ HAZARDS = {
     "skateboard": ("Skateboard", 0.02, 4),
 }
 
-# ============================================================
-# 0. LOGGING
-# ============================================================
+
 
 _log_lock = threading.Lock()
 
@@ -110,9 +89,7 @@ def log_event(kind, details=""):
         pass
 
 
-# ============================================================
-# 1. VOICE - WINDOWS BUILT-IN SPEECH (non-blocking, interruptible)
-# ============================================================
+
 
 _speech_process = None
 _speech_lock = threading.Lock()
@@ -193,9 +170,7 @@ def speak(message, wait=False, urgent=False, force=False):
             return False
 
 
-# ============================================================
-# 2. BEEPS (fast feedback)
-# ============================================================
+
 
 _beeping = False
 _last_beep = 0.0
@@ -235,9 +210,7 @@ def beep(level):
     threading.Thread(target=run, daemon=True).start()
 
 
-# ============================================================
-# 3. OPTIONAL OCR (runs in its own thread)
-# ============================================================
+
 
 _ocr_running = False
 
@@ -448,9 +421,7 @@ def extract_detections(result, frame_width, frame_height):
     return detections
 
 
-# ============================================================
-# 5. SMART HAZARD PRIORITY ENGINE
-# ============================================================
+
 
 def assess_priority(item):
     """
@@ -548,9 +519,7 @@ def draw_detections(frame, detections):
     return annotated
 
 
-# ============================================================
-# 6. STABILITY AND VOICE ALERT SELECTION
-# ============================================================
+
 
 def update_stability(detections, seen_counts):
     """Require a hazard class to persist across frames before alerting."""
@@ -608,7 +577,7 @@ def choose_warnings(detections, last_spoken, seen_counts):
         if seen_counts.get(name, 0) < MIN_CONSECUTIVE_FRAMES:
             continue
 
-        # Side objects that are not dangerous stay silent
+        
         if (
             not item["in_path"]
             and not item["approaching"]
@@ -616,7 +585,7 @@ def choose_warnings(detections, last_spoken, seen_counts):
         ):
             continue
 
-        # Approaching objects may re-alert sooner
+        
         cooldown = ALERT_COOLDOWN / 2 if item["approaching"] else ALERT_COOLDOWN
 
         if now - last_spoken.get(key, 0.0) < cooldown:
@@ -673,9 +642,7 @@ def path_is_blocked(detections):
     return False
 
 
-# ============================================================
-# 7. MAIN PROGRAM
-# ============================================================
+
 
 def main():
     global muted, volume
@@ -868,7 +835,7 @@ def main():
                     print("Depth view error:", repr(error), flush=True)
                     depth_model = None
 
-            # ---- Hotkeys ----
+            
             key = cv2.waitKey(1) & 0xFF
 
             if key == ord("q"):
